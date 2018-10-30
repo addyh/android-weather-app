@@ -1,9 +1,11 @@
 package ml.addy.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -72,9 +74,17 @@ public class ForecastFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            // Execute the FetchWeatherTask
+
+            // Get the SharedPreferences the user selected in the Settings or from pref_general.xml
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+            // Get the value stored in pref_location_key, otherwise use pref_location_default
+            String location = prefs.getString(getString(R.string.pref_location_key),
+                    getString(R.string.pref_location_default));
+
+            // Execute the FetchWeatherTask using the location
             FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute("33809");
+            weatherTask.execute(location);
             return true;
         }
         return super.onOptionsItemSelected(item);
