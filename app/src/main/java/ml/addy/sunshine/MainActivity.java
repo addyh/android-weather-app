@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         // Set the view to the layout in activity_main.xml
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            // Load the ForecastFragment into activity_main's container, FrameLayout
+            // Load the ForecastFragment into activity_main.xml's container, FrameLayout
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new ForecastFragment())
                     .commit();

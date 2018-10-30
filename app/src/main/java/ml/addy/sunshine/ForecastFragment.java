@@ -1,5 +1,6 @@
 package ml.addy.sunshine;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -107,18 +109,39 @@ public class ForecastFragment extends Fragment {
         // List of data - weekForecast
         mForecastAdapter = new ArrayAdapter<String>(
                 getActivity(), // The current context (this activity)
-                R.layout.list_item_forecast, // The name of the layout ID.
-                R.id.list_item_forecast_textview, // The ID of the textview to populate.
+                R.layout.list_item_forecast, // The name of the layout ID
+                R.id.list_item_forecast_textview, // The ID of the textview to populate
                 weekForecast); // The List of weather data
 
         // Reference XML layout resource (fragment_main.xml)
         // and inflate the fragment into the container in MainActivity
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        // Get a reference to the ListView in fragment_main.xml,
-        // and attach this adapter (mForecastAdapter, the weather data ArrayAdapter) to it.
+        // Get a reference to the ListView in fragment_main.xml
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+
+        // Attach this adapter (mForecastAdapter, the weather data ArrayAdapter) to it
         listView.setAdapter(mForecastAdapter);
+
+        // Setup an OnClick Listener
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                // Get the text value of the item clicked
+                String forecast = mForecastAdapter.getItem(position);
+
+                // Send a Toast of the forecast text of the item clicked
+                // Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
+
+                // Create an Intent to launch DetailActivity
+                // Sending through the forecast data for the selected day
+                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(intent);
+            }
+        });
+
 
         // Return the root view of the fragment
         return rootView;
@@ -378,6 +401,7 @@ public class ForecastFragment extends Fragment {
                 for(String dayForecastStr : forecastResults) {
                     mForecastAdapter.add(dayForecastStr);
                 }
+                // mForecastAdapter.notifyDataSetChanged();
                 // New data is back from the server.  Hooray!
             }
         }
