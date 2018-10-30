@@ -54,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        // If map menu has been selected
         else if (id == R.id.action_map) {
+            // Open maps app using intent
             openPreferredLocationInMap();
             return true;
         }
