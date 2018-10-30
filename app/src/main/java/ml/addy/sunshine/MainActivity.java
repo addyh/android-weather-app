@@ -1,5 +1,6 @@
 package ml.addy.sunshine;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
         // If the settings menu item is selected
         if (id == R.id.action_settings) {
+            // Create an Intent to launch SettingsActivity
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 

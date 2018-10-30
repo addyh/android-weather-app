@@ -1,13 +1,10 @@
 package ml.addy.sunshine;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 // The DetailActivity is shown when a forecast day is pressed to show more detail on it
 public class DetailActivity extends AppCompatActivity {
@@ -20,7 +17,7 @@ public class DetailActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             // Load the PlaceholderFragment into activity_detail.xml's container, FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new DetailFragment())
                     .commit();
         }
     }
@@ -42,27 +39,11 @@ public class DetailActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            // Create an Intent to launch SettingsActivity
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            // Reference XML layout resource (fragment_detail.xml)
-            // and inflate the fragment into the container in DetailActivity
-            View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-            return rootView;
-        }
     }
 }
