@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     // When app is created for the first time
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.v("TEST", "onCreate");
         super.onCreate(savedInstanceState);
         // Set the view to the layout in activity_main.xml
         setContentView(R.layout.activity_main);
@@ -30,6 +31,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.v("TEST", "onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.v("TEST", "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.v("TEST", "onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.v("TEST", "onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.v("TEST", "onDestroy");
+    }
 
     // When the options menu list is expanded, inflate it
     @Override
