@@ -21,6 +21,7 @@ public class DetailFragment extends Fragment {
     private String mForecastStr;
 
     public DetailFragment() {
+        // Set this flag so that onCreateOptionsMenu() is called
         setHasOptionsMenu(true);
     }
 
@@ -53,6 +54,7 @@ public class DetailFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        // Includes share button fro detailfragment.xml
         inflater.inflate(R.menu.detailfragment, menu);
 
         // Retrieve the share menu item
@@ -71,8 +73,10 @@ public class DetailFragment extends Fragment {
         }
     }
 
+    // Create an Intent to share the weather forecast
     private Intent createShareForecastIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        // Flag to return to this application afterwards
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT,
