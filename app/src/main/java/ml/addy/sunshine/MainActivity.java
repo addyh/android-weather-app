@@ -31,30 +31,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // The activity is about to become visible
     @Override
     protected void onStart() {
         super.onStart();
         Log.v("TEST", "onStart");
     }
 
+    // The activity has become visible (it is now "resumed")
     @Override
     protected void onResume() {
         super.onResume();
         Log.v("TEST", "onResume");
     }
 
+    // Another activity is taking focus (this activity is about to be "paused")
     @Override
     protected void onPause() {
         super.onPause();
         Log.v("TEST", "onPause");
     }
 
+    // The activity is no longer visible (it is now "stopped")
     @Override
     protected void onStop() {
         super.onStop();
         Log.v("TEST", "onStop");
     }
 
+    // The activity is about to be destroyed
     @Override
     protected void onDestroy() {
         super.onDestroy();
