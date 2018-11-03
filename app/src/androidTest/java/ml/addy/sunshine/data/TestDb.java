@@ -58,29 +58,48 @@ public class TestDb extends TestCase {
 
         deleteTheDatabase();
 
+        // =============================
+        // Create Database
+        // =============================
         SQLiteDatabase db = new WeatherDbHelper(mContext).getWritableDatabase();
 
         Log.v("TEST", "db created");
 
         assertEquals(true, db.isOpen());
 
-        // have we created the tables we want?
+        // Have we created the tables we want?
         Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
 
         assertTrue("Error: This means that the database has not been created correctly",
                 c.moveToFirst());
 
-        // verify that the tables have been created
+        // =============================
+        // Verify Tables Created
+        // =============================
+
+        Log.v("TEST", "Table Names:");
+
+        // Verify that the tables have been created
         do {
-            tableNameHashSet.remove(c.getString(0));
+            String tableName = c.getString(0);
+
+            // Log the table names from the Cursor SQL query above
+            Log.v("TEST", " - " + tableName);
+
+            // Remove location and weather from the HashSet to verify those tables were created
+            tableNameHashSet.remove(tableName);
         } while( c.moveToNext() );
 
-        // if this fails, it means that your database doesn't contain both the location entry
-        // and weather entry tables
+        // If this fails, it means that the database doesn't contain both the location entry
+        // and weather entry tables. HashSet should now be empty
         assertTrue("Error: Your database was created without both the location entry and weather entry tables",
                 tableNameHashSet.isEmpty());
 
-        // now, do our tables contain the correct columns?
+        // =============================
+        // Verify Location Table Columns
+        // =============================
+
+        // Does the location table contain the correct columns?
         c = db.rawQuery("PRAGMA table_info(" + WeatherContract.LocationEntry.TABLE_NAME + ")",
                 null);
 
@@ -95,16 +114,67 @@ public class TestDb extends TestCase {
         locationColumnHashSet.add(WeatherContract.LocationEntry.COLUMN_COORD_LONG);
         locationColumnHashSet.add(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING);
 
+        // Find the column index for the column names
         int columnNameIndex = c.getColumnIndex("name");
+        Log.v("TEST", "Location Table Columns:");
         do {
+            // Get the column name under the "name" column for this column
             String columnName = c.getString(columnNameIndex);
+            Log.v("TEST", " - " + columnName);
+
+            // Remove that column name from the HashSet to verify all columns were created
             locationColumnHashSet.remove(columnName);
         } while(c.moveToNext());
 
-        // if this fails, it means that your database doesn't contain all of the required location
-        // entry columns
+        // If this fails, it means that your database doesn't contain all of the required location
+        // entry columns. HashSet should now be empty
         assertTrue("Error: The database doesn't contain all of the required location entry columns",
                 locationColumnHashSet.isEmpty());
+
+        // =============================
+        // Verify Weather Table Columns
+        // =============================
+
+        // Does the weather table contain the correct columns?
+        c = db.rawQuery("PRAGMA table_info(" + WeatherContract.WeatherEntry.TABLE_NAME + ")",
+                null);
+
+        assertTrue("Error: This means that we were unable to query the database for table information.",
+                c.moveToFirst());
+
+        // Build a HashSet of all of the column names we want to look for
+        final HashSet<String> weatherColumnHashSet = new HashSet<String>();
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry._ID);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_LOC_KEY);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_DATE);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_HUMIDITY);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_PRESSURE);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED);
+        weatherColumnHashSet.add(WeatherContract.WeatherEntry.COLUMN_DEGREES);
+
+        // Find the column index for the column names
+        columnNameIndex = c.getColumnIndex("name");
+        Log.v("TEST", "Weather Table Columns:");
+        do {
+            // Get the column name under the "name" column for this column
+            String columnName = c.getString(columnNameIndex);
+            Log.v("TEST", " - " + columnName);
+
+            // Remove that column name from the HashSet to verify all columns were created
+            weatherColumnHashSet.remove(columnName);
+        } while(c.moveToNext());
+
+        // If this fails, it means that your database doesn't contain all of the required location
+        // entry columns. HashSet should now be empty
+        assertTrue("Error: The database doesn't contain all of the required location entry columns",
+                weatherColumnHashSet.isEmpty());
+
+        // Close db connection
+        c.close();
         db.close();
     }
 
@@ -225,7 +295,7 @@ public class TestDb extends TestCase {
         // (you can use the validateCurrentRecord function in TestUtilities to validate the
         // query if you like)
         TestUtilities.validateCurrentRecord("Error: Location Query Validation Failed",
-                cursor, testValues);
+        cursor, testValues);
 
         // Move the cursor to demonstrate that there is only one record in the database
         assertFalse( "Error: More than one record returned from location query",
