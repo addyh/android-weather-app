@@ -2,18 +2,20 @@ package ml.addy.sunshine.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
 import junit.framework.TestCase;
 
 import java.util.HashSet;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+
 public class TestDb extends TestCase {
 
-    public Context mContext = InstrumentationRegistry.getTargetContext();
+    public Context mContext;
     public static final String LOG_TAG = TestDb.class.getSimpleName();
 
     // Since we want each test to start with a clean slate
@@ -30,6 +32,11 @@ public class TestDb extends TestCase {
         sure that we always have a clean test.
      */
     public void setUp() {
+        try  {
+            mContext = getContext().createPackageContext("ml.addy.sunshine", Context.CONTEXT_IGNORE_SECURITY);
+        } catch (PackageManager.NameNotFoundException e) {
+            fail("Invalid context");
+        }
         deleteTheDatabase();
     }
 
@@ -288,7 +295,7 @@ public class TestDb extends TestCase {
         // (you can use the validateCurrentRecord function in TestUtilities to validate the
         // query if you like)
         TestUtilities.validateCurrentRecord("Error: Location Query Validation Failed",
-        cursor, testValues);
+                cursor, testValues);
 
         // Move the cursor to demonstrate that there is only one record in the database
         assertFalse( "Error: More than one record returned from location query",
