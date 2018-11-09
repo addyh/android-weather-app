@@ -41,6 +41,11 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <!-- Register Content Provider -->
+        <provider
+            android:authorities="ml.addy.sunshine"
+            android:name=".data.WeatherProvider" />
+
     </application>
 
 </manifest>
