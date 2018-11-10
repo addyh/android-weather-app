@@ -1,5 +1,6 @@
 package ml.addy.sunshine;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import ml.addy.sunshine.data.WeatherContract;
@@ -163,25 +165,23 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         listView.setAdapter(mForecastAdapter);
 
 //        // Setup an OnClick Listener for when a specific forecast item is pressed
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-//                // Get the text value of the item pressed
-//                String forecast = mForecastAdapter.getItem(position);
-//
-//                // Send a Toast of the forecast text of the item pressed
-//                // Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
-//
-//                // Create an Intent to launch DetailActivity
-//                // Sending through the forecast data for the selected day
-//                Intent intent = new Intent(getActivity(), DetailActivity.class)
-//                        .putExtra(Intent.EXTRA_TEXT, forecast);
-//                startActivity(intent);
-//            }
-//        });
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                // CursorAdapter returns a cursor at the correct position for getItem(), or null
+                // if it cannot seek to that position.
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                if (cursor != null) {
+                    String locationSetting = Utility.getPreferredLocation(getActivity());
+                    Intent intent = new Intent(getActivity(), DetailActivity.class)
+                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)
+                            ));
+                    startActivity(intent);
+                }
+            }
+        });
         // Return the root view of the fragment
         return rootView;
     }

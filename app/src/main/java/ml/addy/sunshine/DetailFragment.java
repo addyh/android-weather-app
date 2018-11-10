@@ -36,9 +36,9 @@ public class DetailFragment extends Fragment {
         Intent intent = getActivity().getIntent();
 
         // Inspect the Intent for forecast data
-        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+        if (intent != null) {
             // Get the forecast string sent from the Intent
-            mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
+            mForecastStr = intent.getDataString();
         }
 
         if (null != mForecastStr) {
