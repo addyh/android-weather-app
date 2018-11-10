@@ -4,6 +4,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,7 +25,9 @@ import ml.addy.sunshine.data.WeatherContract;
  * i.e. The first thing the user sees when the app is started
  */
 
-public class ForecastFragment extends Fragment {
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>  {
+
+    private static final int FORECAST_LOADER = 0;
 
     // ArrayAdapter holding all the forecast data
     private ForecastAdapter mForecastAdapter;
@@ -95,22 +100,25 @@ public class ForecastFragment extends Fragment {
 //                R.layout.list_item_forecast, // The name of the layout ID
 //                R.id.list_item_forecast_textview, // The ID of the textview to populate
 //                new ArrayList<String>()); // An empty list of weather data
-                // weekForecast); // The List of weather data
+//                // weekForecast); // The List of weather data
+//
+//        String locationSetting = Utility.getPreferredLocation(getActivity());
+//
+//        // Sort order:  Ascending, by date.
+//        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+//        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+//                locationSetting, System.currentTimeMillis());
+//
+//        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
+//                null, null, null, sortOrder);
+//
+//        // The CursorAdapter will take data from our cursor and populate the ListView
+//        // However, we cannot use FLAG_AUTO_REQUERY since it is deprecated, so we will end
+//        // up with an empty list the first time we run.
+//        mForecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
 
-        String locationSetting = Utility.getPreferredLocation(getActivity());
-
-        // Sort order:  Ascending, by date.
-        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                locationSetting, System.currentTimeMillis());
-
-        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
-                null, null, null, sortOrder);
-
-        // The CursorAdapter will take data from our cursor and populate the ListView
-        // However, we cannot use FLAG_AUTO_REQUERY since it is deprecated, so we will end
-        // up with an empty list the first time we run.
-        mForecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
+        // The CursorAdapter will take data from our cursor and populate the ListView.
+        mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
         // Reference XML layout resource (fragment_main.xml)
         // and inflate the fragment into the container in MainActivity
@@ -146,6 +154,12 @@ public class ForecastFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
     // Update the weather data by calling FetchWeatherTask with the location from preferences
     private void updateWeather() {
 //        // Get the SharedPreferences the user selected in the Settings or from pref_general.xml
@@ -169,6 +183,33 @@ public class ForecastFragment extends Fragment {
     public void onStart() {
         super.onStart();
         updateWeather();
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String locationSetting = Utility.getPreferredLocation(getActivity());
+
+        // Sort order:  Ascending, by date.
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+                locationSetting, System.currentTimeMillis());
+
+        return new CursorLoader(getActivity(),
+                weatherForLocationUri,
+                null,
+                null,
+                null,
+                sortOrder);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        mForecastAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        mForecastAdapter.swapCursor(null);
     }
 
     // Get weather data in background
