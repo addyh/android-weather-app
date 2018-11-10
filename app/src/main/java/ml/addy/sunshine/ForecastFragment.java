@@ -1,9 +1,8 @@
 package ml.addy.sunshine;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,11 +10,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.util.ArrayList;
+import ml.addy.sunshine.data.WeatherContract;
 
 
 /**
@@ -28,7 +25,7 @@ import java.util.ArrayList;
 public class ForecastFragment extends Fragment {
 
     // ArrayAdapter holding all the forecast data
-    private ArrayAdapter<String> mForecastAdapter;
+    private ForecastAdapter mForecastAdapter;
 
     public ForecastFragment() {
     }
@@ -93,12 +90,27 @@ public class ForecastFragment extends Fragment {
         // id of list item layout - R.layout.list_item_forecast
         // id of text view - R.id.list_item_forecast_textview
         // List of data - weekForecast
-        mForecastAdapter = new ArrayAdapter<String>(
-                getActivity(), // The current context (this activity)
-                R.layout.list_item_forecast, // The name of the layout ID
-                R.id.list_item_forecast_textview, // The ID of the textview to populate
-                new ArrayList<String>()); // An empty list of weather data
+//        mForecastAdapter = new ArrayAdapter<String>(
+//                getActivity(), // The current context (this activity)
+//                R.layout.list_item_forecast, // The name of the layout ID
+//                R.id.list_item_forecast_textview, // The ID of the textview to populate
+//                new ArrayList<String>()); // An empty list of weather data
                 // weekForecast); // The List of weather data
+
+        String locationSetting = Utility.getPreferredLocation(getActivity());
+
+        // Sort order:  Ascending, by date.
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+                locationSetting, System.currentTimeMillis());
+
+        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
+                null, null, null, sortOrder);
+
+        // The CursorAdapter will take data from our cursor and populate the ListView
+        // However, we cannot use FLAG_AUTO_REQUERY since it is deprecated, so we will end
+        // up with an empty list the first time we run.
+        mForecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
 
         // Reference XML layout resource (fragment_main.xml)
         // and inflate the fragment into the container in MainActivity
@@ -110,24 +122,24 @@ public class ForecastFragment extends Fragment {
         // Attach this adapter (mForecastAdapter, the weather data ArrayAdapter) to it
         listView.setAdapter(mForecastAdapter);
 
-        // Setup an OnClick Listener for when a specific forecast item is pressed
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // Get the text value of the item pressed
-                String forecast = mForecastAdapter.getItem(position);
-
-                // Send a Toast of the forecast text of the item pressed
-                // Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
-
-                // Create an Intent to launch DetailActivity
-                // Sending through the forecast data for the selected day
-                Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, forecast);
-                startActivity(intent);
-            }
-        });
+//        // Setup an OnClick Listener for when a specific forecast item is pressed
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+//                // Get the text value of the item pressed
+//                String forecast = mForecastAdapter.getItem(position);
+//
+//                // Send a Toast of the forecast text of the item pressed
+//                // Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
+//
+//                // Create an Intent to launch DetailActivity
+//                // Sending through the forecast data for the selected day
+//                Intent intent = new Intent(getActivity(), DetailActivity.class)
+//                        .putExtra(Intent.EXTRA_TEXT, forecast);
+//                startActivity(intent);
+//            }
+//        });
 
 
         // Return the root view of the fragment
@@ -136,15 +148,19 @@ public class ForecastFragment extends Fragment {
 
     // Update the weather data by calling FetchWeatherTask with the location from preferences
     private void updateWeather() {
-        // Get the SharedPreferences the user selected in the Settings or from pref_general.xml
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        // Get the SharedPreferences the user selected in the Settings or from pref_general.xml
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//
+//        // Get the value stored in pref_location_key, otherwise use pref_location_default
+//        String location = prefs.getString(getString(R.string.pref_location_key),
+//                getString(R.string.pref_location_default));
+//
+//        // Execute the FetchWeatherTask using the location
+//        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(), mForecastAdapter);
 
-        // Get the value stored in pref_location_key, otherwise use pref_location_default
-        String location = prefs.getString(getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
+        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
+        String location = Utility.getPreferredLocation(getActivity());
 
-        // Execute the FetchWeatherTask using the location
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(), mForecastAdapter);
         weatherTask.execute(location);
     }
 
