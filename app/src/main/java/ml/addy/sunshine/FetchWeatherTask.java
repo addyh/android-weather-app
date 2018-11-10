@@ -169,7 +169,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
      *
      * @param forecastJsonStr Entire JSON string from the OpenWeatherMap API
      *
-     * @param numDays The number of days retrieved
+     * @param locationSetting Location zipcode
      *
      * @return A String array containing the final formatted weather data
      */
