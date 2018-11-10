@@ -61,6 +61,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
                 null);
 
         if (locationCursor.moveToFirst()) {
+            // Location does exist already, return the ID
             int locationIdIndex = locationCursor.getColumnIndex(WeatherContract.LocationEntry._ID);
             locationId = locationCursor.getLong(locationIdIndex);
         } else {
