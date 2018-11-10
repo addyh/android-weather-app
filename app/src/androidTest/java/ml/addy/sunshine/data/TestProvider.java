@@ -10,14 +10,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
+import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
 import junit.framework.TestCase;
 
 import ml.addy.sunshine.data.WeatherContract.LocationEntry;
 import ml.addy.sunshine.data.WeatherContract.WeatherEntry;
-
-import static android.support.test.InstrumentationRegistry.getContext;
 
 /*
     Note: This is not a complete set of tests of the Sunshine ContentProvider, but it does test
@@ -28,7 +27,7 @@ import static android.support.test.InstrumentationRegistry.getContext;
  */
 public class TestProvider extends TestCase {
 
-    public Context mContext = getContext();
+    public Context mContext = InstrumentationRegistry.getTargetContext();
     public static final String LOG_TAG = TestProvider.class.getSimpleName();
 
     /*

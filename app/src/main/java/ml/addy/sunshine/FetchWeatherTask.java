@@ -175,6 +175,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         // into an Object hierarchy for us.
 
         // These are the names of the JSON objects that need to be extracted.
+        // Open Weather Map (OWM) Strings
 
         // Location information
         final String OWM_CITY = "city";
@@ -229,10 +230,10 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             Time dayTime = new Time();
             dayTime.setToNow();
 
-            // we start at the day returned by local time. Otherwise this is a mess.
+            // We start at the day returned by local time. Otherwise this is a mess.
             int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
 
-            // now we work exclusively in UTC
+            // Now we work exclusively in UTC
             dayTime = new Time();
 
             for(int i = 0; i < weatherArray.length(); i++) {
@@ -319,6 +320,15 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             Log.d(LOG_TAG, "FetchWeatherTask Complete. " + cVVector.size() + " Inserted");
 
             String[] resultStrs = convertContentValuesToUXFormat(cVVector);
+
+            // Log every element of the String array
+            /*
+            for (String s : resultStrs) {
+                Log.v(LOG_TAG, "Forecast entry: " + s);
+            }
+            */
+
+            // Return the resulting String array of formatted weather data
             return resultStrs;
 
         } catch (JSONException e) {
@@ -328,6 +338,11 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         return null;
     }
 
+    /** Runs on a separate background thread to save resources
+     *
+     * @param params The postal code as a string parameter
+     * @return A String array of forecasts
+     */
     @Override
     protected String[] doInBackground(String... params) {
 
@@ -347,12 +362,20 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         String format = "json";
         String units = "metric";
-        int numDays = 14;
+        int numDays = 14; // Number of forecast days
 
         try {
             // Construct the URL for the OpenWeatherMap query
             // Possible parameters are avaiable at OWM's forecast API page, at
             // http://openweathermap.org/API#forecast
+
+            /*
+            String baseUrl = "http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&cnt=7";
+            String apiKey = "&APPID=" + BuildConfig.OPEN_WEATHER_MAP_API_KEY;
+            URL url = new URL(baseUrl.concat(apiKey));
+            */
+
+            // Build URI using UriBuilder
             final String FORECAST_BASE_URL =
                     "http://api.openweathermap.org/data/2.5/forecast/daily?";
             final String QUERY_PARAM = "q";
@@ -370,6 +393,9 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                     .build();
 
             URL url = new URL(builtUri.toString());
+
+            // Log the built URI
+            // Log.v(LOG_TAG, "Built URI: " + builtUri.toString());
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -398,6 +424,10 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 return null;
             }
             forecastJsonStr = buffer.toString();
+
+            // Log the json response
+            // Log.v(LOG_TAG, "Forecast JSON String:" + forecastJsonStr);
+
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
@@ -417,6 +447,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         }
 
         try {
+            // Parse the response from the server
             return getWeatherDataFromJson(forecastJsonStr, locationQuery);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -426,13 +457,21 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         return null;
     }
 
+    /** Update the forecast ArrayAdapter to display the new weather data
+     *
+     * @param result the String array returned from doInBackground()
+     */
     @Override
     protected void onPostExecute(String[] result) {
         if (result != null && mForecastAdapter != null) {
+            // Clear out the old forecast entries
             mForecastAdapter.clear();
+            // Add the new entries to the Adapter
             for(String dayForecastStr : result) {
                 mForecastAdapter.add(dayForecastStr);
             }
+            // Not necessary because .add() runs it, but otherwise would be required:
+            // mForecastAdapter.notifyDataSetChanged();
             // New data is back from the server.  Hooray!
         }
     }
