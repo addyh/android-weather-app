@@ -13,18 +13,22 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private final String FORECASTFRAGMENT_TAG = "FFTAG";
+
+    private String mLocation;
 
     // When app is created for the first time
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v("TEST", "onCreate");
+        mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
         // Set the view to the layout in activity_main.xml
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             // Load the ForecastFragment into activity_main.xml's container, FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
                     .commit();
         }
     }
@@ -41,6 +45,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.v("TEST", "onResume");
+
+        String location = Utility.getPreferredLocation( this );
+        // update the location in our second pane using the fragment manager
+        if (location != null && !location.equals(mLocation)) {
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(
+                    FORECASTFRAGMENT_TAG);
+            if ( null != ff ) {
+                ff.onLocationChanged();
+            }
+            mLocation = location;
+        }
     }
 
     // Another activity is taking focus (this activity is about to be "paused")
