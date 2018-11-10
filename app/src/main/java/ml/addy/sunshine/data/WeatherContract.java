@@ -100,8 +100,8 @@ public class WeatherContract {
         public static final String COLUMN_SHORT_DESC = "short_desc";
 
         // Min and max temperatures for the day (stored as floats)
-        public static final String COLUMN_MIN_TEMP = "min_temp";
-        public static final String COLUMN_MAX_TEMP = "max_temp";
+        public static final String COLUMN_MIN_TEMP = "min_temp"; // "min"
+        public static final String COLUMN_MAX_TEMP = "max_temp"; // "max"
 
         // Humidity is stored as a float representing percentage
         public static final String COLUMN_HUMIDITY = "humidity";
@@ -110,7 +110,7 @@ public class WeatherContract {
         public static final String COLUMN_PRESSURE = "pressure";
 
         // Windspeed is stored as a float representing windspeed in mph
-        public static final String COLUMN_WIND_SPEED = "wind_speed";
+        public static final String COLUMN_WIND_SPEED = "wind_speed"; // "wind"
 
         // Degrees are meteorological degrees (e.g, 0 is north, 180 is south).  Stored as floats
         public static final String COLUMN_DEGREES = "degrees";

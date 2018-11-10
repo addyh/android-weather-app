@@ -2,20 +2,19 @@ package ml.addy.sunshine.data;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
 import junit.framework.TestCase;
 
 import java.util.HashSet;
 
-import static android.support.test.InstrumentationRegistry.getContext;
 
 public class TestDb extends TestCase {
 
-    public Context mContext;
+    public Context mContext =InstrumentationRegistry.getTargetContext();
     public static final String LOG_TAG = TestDb.class.getSimpleName();
 
     // Since we want each test to start with a clean slate
@@ -32,11 +31,6 @@ public class TestDb extends TestCase {
         sure that we always have a clean test.
      */
     public void setUp() {
-        try  {
-            mContext = getContext().createPackageContext("ml.addy.sunshine", Context.CONTEXT_IGNORE_SECURITY);
-        } catch (PackageManager.NameNotFoundException e) {
-            fail("Invalid context");
-        }
         deleteTheDatabase();
     }
 
