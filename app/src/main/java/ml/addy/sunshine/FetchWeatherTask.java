@@ -61,7 +61,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 //                PreferenceManager.getDefaultSharedPreferences(mContext);
 //        String unitType = sharedPrefs.getString(
 //                mContext.getString(R.string.pref_units_key),
-//                mContext.getString(R.string.pref_units_metric));
+//                mContext.getString(R.string.pref_units_default));
 //
 //        if (unitType.equals(mContext.getString(R.string.pref_units_imperial))) {
 //            high = (high * 1.8) + 32;
