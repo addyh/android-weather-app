@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Utility {
@@ -33,6 +33,7 @@ public class Utility {
 
     static String formatDate(long dateInMillis) {
         Date date = new Date(dateInMillis);
-        return DateFormat.getDateInstance().format(date);
+        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
+        return format.format(date);
     }
 }

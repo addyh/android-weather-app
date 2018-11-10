@@ -37,10 +37,11 @@ public class DetailFragment extends Fragment {
 
         // Inspect the Intent for forecast data
         if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-
             // Get the forecast string sent from the Intent
             mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
+        }
 
+        if (null != mForecastStr) {
             // Set the detail_text TextView in fragment_detail.xml to the forecast string
             // to display it in DetailActivity
             ((TextView) rootView.findViewById(R.id.detail_text))
