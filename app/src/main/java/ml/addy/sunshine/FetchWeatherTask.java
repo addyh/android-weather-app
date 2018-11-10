@@ -30,6 +30,7 @@ import java.util.Vector;
 import ml.addy.sunshine.data.WeatherContract;
 import ml.addy.sunshine.data.WeatherContract.WeatherEntry;
 
+// Get weather data in background
 public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
@@ -165,6 +166,12 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
      *
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
+     *
+     * @param forecastJsonStr Entire JSON string from the OpenWeatherMap API
+     *
+     * @param numDays The number of days retrieved
+     *
+     * @return A String array containing the final formatted weather data
      */
     private String[] getWeatherDataFromJson(String forecastJsonStr,
                                             String locationSetting)
