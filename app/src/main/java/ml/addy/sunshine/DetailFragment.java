@@ -22,7 +22,7 @@ import ml.addy.sunshine.data.WeatherContract.WeatherEntry;
 
 public class DetailFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
-    private static final String LOG_TAG = DetailFragment.class.getSimpleName();
+    private static final String LOG_TAG = "TEST/" + DetailFragment.class.getSimpleName();
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
     private ShareActionProvider mShareActionProvider;
