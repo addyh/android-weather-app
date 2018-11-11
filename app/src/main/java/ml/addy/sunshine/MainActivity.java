@@ -12,7 +12,7 @@ import android.view.MenuItem;
 // Main Activity, loads when app starts
 public class MainActivity extends AppCompatActivity {
 
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private final String LOG_TAG = "TEST/" + MainActivity.class.getSimpleName();
     private final String FORECASTFRAGMENT_TAG = "FFTAG";
 
     private String mLocation;
@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     // When app is created for the first time
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v("TEST", "onCreate");
+        Log.v(LOG_TAG, "onCreate");
         mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
         // Set the view to the layout in activity_main.xml
@@ -37,14 +37,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Log.v("TEST", "onStart");
+        Log.v(LOG_TAG, "onStart");
     }
 
     // The activity has become visible (it is now "resumed")
     @Override
     protected void onResume() {
         super.onResume();
-        Log.v("TEST", "onResume");
+        Log.v(LOG_TAG, "onResume");
 
         String location = Utility.getPreferredLocation( this );
         // update the location in our second pane using the fragment manager
@@ -62,21 +62,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.v("TEST", "onPause");
+        Log.v(LOG_TAG, "onPause");
     }
 
     // The activity is no longer visible (it is now "stopped")
     @Override
     protected void onStop() {
         super.onStop();
-        Log.v("TEST", "onStop");
+        Log.v(LOG_TAG, "onStop");
     }
 
     // The activity is about to be destroyed
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.v("TEST", "onDestroy");
+        Log.v(LOG_TAG, "onDestroy");
     }
 
     // When the options menu list is expanded, inflate it

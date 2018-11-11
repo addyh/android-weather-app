@@ -27,7 +27,7 @@ import ml.addy.sunshine.data.WeatherContract.WeatherEntry;
 // Get weather data in background
 public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
-    private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
+    private final String LOG_TAG = "TEST/" + FetchWeatherTask.class.getSimpleName();
 
     private final Context mContext;
 
@@ -296,7 +296,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
             URL url = new URL(builtUri.toString());
 
             // Log the built URI
-            // Log.v(LOG_TAG, "Built URI: " + builtUri.toString());
+            Log.v(LOG_TAG, "Built URI: " + builtUri.toString());
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -328,7 +328,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
             getWeatherDataFromJson(forecastJsonStr, locationQuery);
 
             // Log the json response
-            // Log.v(LOG_TAG, "Forecast JSON String:" + forecastJsonStr);
+            Log.v(LOG_TAG, "Forecast JSON String:" + forecastJsonStr);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
