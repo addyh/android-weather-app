@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts
@@ -69,9 +68,9 @@ public class ForecastAdapter extends CursorAdapter {
         // our view is pretty simple here --- just a text view
         // we'll keep the UI functional with a simple (and slow!) binding.
 
-        TextView tv = (TextView)view;
-        String forecast = convertCursorRowToUXFormat(cursor);
-        tv.setText(forecast);
-        Log.v(LOG_TAG, forecast);
+//        TextView tv = (TextView)view;
+//        String forecast = convertCursorRowToUXFormat(cursor);
+//        tv.setText(forecast);
+//        Log.v(LOG_TAG, forecast);
     }
 }
