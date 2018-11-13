@@ -32,6 +32,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
     private final Context mContext;
 
     public FetchWeatherTask(Context context) {
+        Log.v(LOG_TAG, "FetchWeatherTask()");
         mContext = context;
     }
 
@@ -47,6 +48,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
      * @return the row ID of the added location.
      */
     long addLocation(String locationSetting, String cityName, double lat, double lon) {
+        Log.v(LOG_TAG, "addLocation");
         // First, check if the location with this city name exists in the db
         // If it exists, return the current ID
         // Otherwise, insert it using the content resolver and the base URI
@@ -61,10 +63,12 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
                 null);
 
         if (locationCursor.moveToFirst()) {
+            Log.v(LOG_TAG, " - addLocation: location already exists");
             // Location does exist already, return the ID
             int locationIdIndex = locationCursor.getColumnIndex(WeatherContract.LocationEntry._ID);
             locationId = locationCursor.getLong(locationIdIndex);
         } else {
+            Log.v(LOG_TAG, " - addLocation: inserting new location");
             // Now that the content provider is set up, inserting rows of data is pretty simple.
             // First create a ContentValues object to hold the data you want to insert.
             ContentValues locationValues = new ContentValues();
@@ -107,6 +111,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
     private void getWeatherDataFromJson(String forecastJsonStr,
                                             String locationSetting)
             throws JSONException {
+        Log.v(LOG_TAG, "getWeatherDataFromJson");
 
         // Now we have a String representing the complete forecast in JSON Format.
         // Fortunately parsing is easy:  constructor takes the JSON string and converts it
@@ -252,6 +257,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
      */
     @Override
     protected Void doInBackground(String... params) {
+        Log.v(LOG_TAG, "doInBackground");
 
         // If there's no zip code, there's nothing to look up.  Verify size of params.
         if (params.length == 0) {

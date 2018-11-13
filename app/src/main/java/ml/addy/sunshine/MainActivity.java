@@ -15,7 +15,12 @@ public class MainActivity extends AppCompatActivity {
     private final String LOG_TAG = "TEST/" + MainActivity.class.getSimpleName();
     private final String FORECASTFRAGMENT_TAG = "FFTAG";
 
+    // Used to check if the location setting changes
     private String mLocation;
+
+    public MainActivity() {
+        Log.v(LOG_TAG, "MainActivity()");
+    }
 
     // When app is created for the first time
     @Override
@@ -26,10 +31,11 @@ public class MainActivity extends AppCompatActivity {
         // Set the view to the layout in activity_main.xml
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
+            Log.v(LOG_TAG, " - onCreate: loading ForecastFragment");
             // Load the ForecastFragment into activity_main.xml's container, FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
-                    .commit();
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG).commit();
+            Log.v(LOG_TAG, "- onCreate: ForecastFragment created");
         }
     }
 
@@ -46,14 +52,15 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Log.v(LOG_TAG, "onResume");
 
+        // Location setting was changed while the app is still running:
         String location = Utility.getPreferredLocation( this );
         // update the location in our second pane using the fragment manager
         if (location != null && !location.equals(mLocation)) {
-            Log.v(LOG_TAG, "location is different");
+            Log.v(LOG_TAG, " - onResume: location is different");
             ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(
                     FORECASTFRAGMENT_TAG);
             if ( null != ff ) {
-                Log.v(LOG_TAG, "updating location");
+                Log.v(LOG_TAG, " - onResume: updating location");
                 ff.onLocationChanged();
             }
             mLocation = location;
@@ -84,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     // When the options menu list is expanded, inflate it
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.v(LOG_TAG, "Options menu created");
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
@@ -92,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
     // When an option menu item is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.v(LOG_TAG, "Options item selected");
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
