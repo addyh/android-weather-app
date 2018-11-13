@@ -69,20 +69,58 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ForecastAdapter mForecastAdapter;
 
     public ForecastFragment() {
+        Log.v(LOG_TAG, "ForecastFragment()");
     }
 
     // When the fragment is created
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.v(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         // to indicate that we want callbacks for the options menu methods
         setHasOptionsMenu(true);
     }
 
+    // The activity is about to become visible
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.v(LOG_TAG, "onStart");
+    }
+
+    // The activity has become visible (it is now "resumed")
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.v(LOG_TAG, "onResume");
+    }
+
+    // Another activity is taking focus (this activity is about to be "paused")
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.v(LOG_TAG, "onPause");
+    }
+
+    // The activity is no longer visible (it is now "stopped")
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.v(LOG_TAG, "onStop");
+    }
+
+    // The activity is about to be destroyed
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.v(LOG_TAG, "onDestroy");
+    }
+
     // When the options menu list is expanded, inflate it
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.v(LOG_TAG, "Options menu created");
         // Inflate the menu defined in forecastfragment.xml
         inflater.inflate(R.menu.forecastfragment, menu);
     }
@@ -90,6 +128,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     // When an option menu item is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.v(LOG_TAG, "Options item selected");
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -108,7 +147,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        Log.v(LOG_TAG, "onCreateView");
         // The CursorAdapter will take data from our cursor and populate the ListView.
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
@@ -146,19 +185,51 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        Log.v(LOG_TAG, "onActivityCreated");
+
+        // This will make sure that the location chosen actually exists in the database
+        // and if it doesn't exist, it will be added
+        // - Such as when:
+        //    * Starting the app for the very first time
+        //    * Changing location setting when the app's onDestroy() gets called
+        // Basically whenever the app first loads (or the activity is first created),
+        // if the location doesn't exist, we need to add it
+        String locationSetting = Utility.getPreferredLocation(getActivity());
+        Cursor locationCursor = getActivity().getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                new String[]{WeatherContract.LocationEntry._ID},
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                new String[]{locationSetting},
+                null);
+
+        if (locationCursor.moveToFirst()) {
+            // Location exists. Good; do nothing.
+            Log.v(LOG_TAG, " - onActivityCreated: LOCATION EXISTS");
+        } else {
+            // Need to updateWeather() to query with the new location
+            Log.v(LOG_TAG, " - onActivityCreated: LOATION DOES NOT EXIST");
+            Log.v(LOG_TAG, " - onActivityCreated: updating location");
+            updateWeather();
+        }
+        locationCursor.close();
+
+        // Create the Loader
         getLoaderManager().initLoader(FORECAST_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
-    // since we read the location when we create the loader, all we need to do is restart things
+    // Since we read the location when we create the loader, all we need to do is restart things
     void onLocationChanged( ) {
+        Log.v(LOG_TAG, "onLocationChanged");
+        // Update the weather with the new location
         updateWeather();
+        // Restart the Loader so it loads with the new location
         getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
     }
 
     // Update the weather data by calling FetchWeatherTask with the location from preferences
     private void updateWeather() {
-
+        Log.v(LOG_TAG, "updateWeather");
         FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
         String location = Utility.getPreferredLocation(getActivity());
 
@@ -174,13 +245,32 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Log.v(LOG_TAG,Integer.toString(i));
+        Log.v(LOG_TAG, "onCreateLoader: id=" + Integer.toString(i));
         String locationSetting = Utility.getPreferredLocation(getActivity());
 
         // Sort order:  Ascending, by date.
         String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
         Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
                 locationSetting, System.currentTimeMillis());
+
+        Log.v(LOG_TAG, " - onCreateLoader: cursor: " + weatherForLocationUri.toString());
+
+        // ========================================================================
+        // Only necessary for logging
+        Cursor locationCursor = getActivity().getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                new String[]{WeatherContract.LocationEntry._ID},
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                new String[]{locationSetting},
+                null);
+
+        if (locationCursor.moveToFirst()) {
+            Log.v(LOG_TAG, " - onCreateLoader: LOCATION EXISTS");
+        } else {
+            Log.v(LOG_TAG, " - onCreateLoader: LOATION DOES NOT EXIST");
+        }
+        locationCursor.close();
+        // ========================================================================
 
         return new CursorLoader(getActivity(),
                 weatherForLocationUri,
@@ -192,11 +282,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        Log.v(LOG_TAG, "onLoadFinished");
         mForecastAdapter.swapCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        Log.v(LOG_TAG, "onLoaderReset");
         mForecastAdapter.swapCursor(null);
     }
 }
