@@ -13,8 +13,10 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
 
     private final String LOG_TAG = "TEST/" + MainActivity.class.getSimpleName();
-    private final String FORECASTFRAGMENT_TAG = "FFTAG";
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
 
+    // Are we in two-pane (wide-view) mode?
+    private boolean mTwoPane;
     // Used to check if the location setting changes
     private String mLocation;
 
@@ -26,16 +28,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(LOG_TAG, "onCreate");
-        mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
+        mLocation = Utility.getPreferredLocation(this);
+
         // Set the view to the layout in activity_main.xml
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            Log.v(LOG_TAG, " - onCreate: loading ForecastFragment");
-            // Load the ForecastFragment into activity_main.xml's container, FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG).commit();
-            Log.v(LOG_TAG, "- onCreate: ForecastFragment created");
+
+        if (findViewById(R.id.weather_detail_container) != null) {
+            // The detail container view will be present only in the large-screen layouts
+            // (res/layout-sw600dp). If this view is present, then the activity should be
+            // in two-pane mode.
+            mTwoPane = true;
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            if (savedInstanceState == null) {
+                Log.v(LOG_TAG, " - onCreate: loading DetailFragment");
+                // Load the ForecastFragment into activity_main.xml's container, FrameLayout
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.weather_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+                Log.v(LOG_TAG, "- onCreate: DetailFragment created");
+            }
+        } else {
+            mTwoPane = false;
         }
     }
 
@@ -57,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
         // update the location in our second pane using the fragment manager
         if (location != null && !location.equals(mLocation)) {
             Log.v(LOG_TAG, " - onResume: location is different");
-            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(
-                    FORECASTFRAGMENT_TAG);
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(
+                    R.id.fragment_forecast);
             if ( null != ff ) {
                 Log.v(LOG_TAG, " - onResume: updating location");
                 ff.onLocationChanged();
