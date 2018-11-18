@@ -1,6 +1,5 @@
 package ml.addy.sunshine;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -68,6 +67,18 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     // ArrayAdapter holding all the forecast data
     private ForecastAdapter mForecastAdapter;
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri dateUri);
+    }
+
     public ForecastFragment() {
         Log.v(LOG_TAG, "ForecastFragment()");
     }
@@ -124,7 +135,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     // When the options menu list is expanded, inflate it
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        Log.v(LOG_TAG, "Options menu created");
+        Log.v(LOG_TAG, "onCreateOptionsMenu");
         // Inflate the menu defined in forecastfragment.xml
         inflater.inflate(R.menu.forecastfragment, menu);
     }
@@ -132,7 +143,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     // When an option menu item is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.v(LOG_TAG, "Options item selected");
+        Log.v(LOG_TAG, "onOptionsItemSelected");
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -175,11 +186,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
-                    Intent intent = new Intent(getActivity(), DetailActivity.class)
-                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                    ((Callback) getActivity())
+                            .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                                     locationSetting, cursor.getLong(COL_WEATHER_DATE)
                             ));
-                    startActivity(intent);
                 }
             }
         });
@@ -211,8 +221,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             Log.v(LOG_TAG, " - onActivityCreated: LOCATION EXISTS");
         } else {
             // Need to updateWeather() to query with the new location
-            Log.v(LOG_TAG, " - onActivityCreated: LOATION DOES NOT EXIST");
-            Log.v(LOG_TAG, " - onActivityCreated: updating location");
+            Log.v(LOG_TAG, " - onActivityCreated: LOATION DOES NOT EXIST, updating location");
             updateWeather();
         }
         locationCursor.close();
