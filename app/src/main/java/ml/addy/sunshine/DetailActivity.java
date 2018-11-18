@@ -17,7 +17,7 @@ public class DetailActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             // Load the PlaceholderFragment into activity_detail.xml's container, FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new DetailFragment())
+                    .add(R.id.weather_detail_container, new DetailFragment())
                     .commit();
         }
     }

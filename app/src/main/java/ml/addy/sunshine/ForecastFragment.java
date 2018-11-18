@@ -77,6 +77,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onCreate(Bundle savedInstanceState) {
         Log.v(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        // Use this only for non UI fragments
+        // setRetainInstance(true);
+
         // Add this line in order for this fragment to handle menu events.
         // to indicate that we want callbacks for the options menu methods
         setHasOptionsMenu(true);
