@@ -84,9 +84,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.v(LOG_TAG, "onCreateView");
+        // Read the arguments the fragment was initialized with
         Bundle arguments = getArguments();
         if (arguments != null) {
             Log.v(LOG_TAG, " - onCreateView: arguments contained");
+            // Read the data URI and store in mUri
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
         } else {
             Log.v(LOG_TAG, " - onCreateView: no arguments");

@@ -176,13 +176,16 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             Bundle args = new Bundle();
             args.putParcelable(DetailFragment.DETAIL_URI, contentUri);
 
+            // Create a DetaiFragment and put the URI inside the arguments bundle
             DetailFragment fragment = new DetailFragment();
             fragment.setArguments(args);
 
+            // Replace the existing DetailFragment in weather_detail_container using tag
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.weather_detail_container, fragment, DETAILFRAGMENT_TAG)
                     .commit();
         } else {
+            // Create a new intent to launch the DetailActivity, and set Data URI
             Intent intent = new Intent(this, DetailActivity.class)
                     .setData(contentUri);
             startActivity(intent);
