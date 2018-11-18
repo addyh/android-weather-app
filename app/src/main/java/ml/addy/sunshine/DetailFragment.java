@@ -2,6 +2,7 @@ package ml.addy.sunshine;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -25,10 +26,12 @@ import ml.addy.sunshine.data.WeatherContract.WeatherEntry;
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String LOG_TAG = "TEST/" + DetailFragment.class.getSimpleName();
+    static final String DETAIL_URI = "URI";
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
     private ShareActionProvider mShareActionProvider;
     private String mForecast;
+    private Uri mUri;
 
     private static final int DETAIL_LOADER = 0;
 
@@ -72,6 +75,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mPressureView;
 
     public DetailFragment() {
+        Log.v(LOG_TAG, "DetailFragment()");
         // Set this flag so that onCreateOptionsMenu() is called
         setHasOptionsMenu(true);
     }
@@ -79,6 +83,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.v(LOG_TAG, "onCreateView");
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            Log.v(LOG_TAG, " - onCreateView: arguments contained");
+            mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
+        } else {
+            Log.v(LOG_TAG, " - onCreateView: no arguments");
+        }
+
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         mIconView = (ImageView) rootView.findViewById(R.id.detail_icon);
         mDateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
@@ -94,6 +107,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.v(LOG_TAG, "onCreateOptionsMenu");
         // Inflate the menu; this adds items to the action bar if it is present.
         // Includes share button from detailfragment.xml
         inflater.inflate(R.menu.detailfragment, menu);
@@ -122,29 +136,43 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        Intent intent = getActivity().getIntent();
-        if (intent == null || intent.getData() == null) {
-        } else {
+        Log.v(LOG_TAG, "onActivityCreated");
+        if (null != mUri) {
+            Log.v(LOG_TAG, " - onActivityCreated: yes mUri, initializing loader");
             getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        } else {
+            Log.v(LOG_TAG, " - onActivityCreated: no mUri");
         }
         super.onActivityCreated(savedInstanceState);
     }
 
+    void onLocationChanged( String newLocation ) {
+        Log.v(LOG_TAG, "onLocationChanged");
+        // replace the uri, since the location has changed
+        if (null != mUri) {
+            long date = WeatherContract.WeatherEntry.getDateFromUri(mUri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            mUri = updatedUri;
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.v(LOG_TAG, "In onCreateLoader");
-        Intent intent = getActivity().getIntent();
         Log.v(LOG_TAG, "onCreateLoader");
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
-        return new CursorLoader(
-                getActivity(),
-                intent.getData(),
-                DETAIL_COLUMNS,
-                null,
-                null,
-                null
-        );
+        if ( null != mUri ) {
+            // Now create and return a CursorLoader that will take care of
+            // creating a Cursor for the data being displayed.
+            return new CursorLoader(
+                    getActivity(),
+                    mUri,
+                    DETAIL_COLUMNS,
+                    null,
+                    null,
+                    null
+            );
+        }
+        return null;
     }
 
     @Override
@@ -205,6 +233,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        Log.v(LOG_TAG, "onLoaderReset");
     }
 }
