@@ -26,12 +26,12 @@ public class DetailActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity using a fragment transaction
             Bundle arguments = new Bundle();
+            // Read the data URI from the incoming intent
             arguments.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
-
+            // Use the URI as the arguments in the DetailFragment
             DetailFragment fragment = new DetailFragment();
             fragment.setArguments(arguments);
-
-            // Load the PlaceholderFragment into activity_detail.xml's container, FrameLayout
+            // Dynamically add the fragment to the container
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.weather_detail_container, fragment)
                     .commit();
