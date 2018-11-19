@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         } else {
             Log.v(LOG_TAG, "- onCreate: one pane");
             mTwoPane = false;
+            getSupportActionBar().setElevation(0f);
         }
 
         ForecastFragment forecastFragment = (ForecastFragment) getSupportFragmentManager()
