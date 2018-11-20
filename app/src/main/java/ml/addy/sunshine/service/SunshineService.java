@@ -25,17 +25,28 @@ import java.util.Vector;
 import ml.addy.sunshine.BuildConfig;
 import ml.addy.sunshine.data.WeatherContract;
 
-
+// Get weather data in background
 public class SunshineService extends IntentService {
-    private ArrayAdapter<String> mForecastAdapter;
+
+    private final String LOG_TAG = "TEST/" + SunshineService.class.getSimpleName();
+
     public static final String LOCATION_QUERY_EXTRA = "lqe";
-    private final String LOG_TAG = SunshineService.class.getSimpleName();
+
+    private ArrayAdapter<String> mForecastAdapter;
+
     public SunshineService() {
         super("Sunshine");
+        Log.v(LOG_TAG, "SunshineService()");
     }
 
+    /** Runs on a separate background thread to save resources
+     *
+     * @param intent Contains the location in extra data of the Intent
+     */
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.v(LOG_TAG, "onHandleIntent (a.k.a. doInBackground)");
+
         String locationQuery = intent.getStringExtra(LOCATION_QUERY_EXTRA);
 
         // These two need to be declared outside the try/catch
@@ -48,12 +59,14 @@ public class SunshineService extends IntentService {
 
         String format = "json";
         String units = "metric";
-        int numDays = 14;
+        int numDays = 14; // Number of forecast days
 
         try {
             // Construct the URL for the OpenWeatherMap query
             // Possible parameters are avaiable at OWM's forecast API page, at
             // http://openweathermap.org/API#forecast
+
+            // Build URI using UriBuilder
             final String FORECAST_BASE_URL =
                     "http://api.openweathermap.org/data/2.5/forecast/daily?";
             final String QUERY_PARAM = "q";
@@ -71,6 +84,9 @@ public class SunshineService extends IntentService {
                     .build();
 
             URL url = new URL(builtUri.toString());
+
+            // Log the built URI
+            Log.v(LOG_TAG, " - onHandleIntent: Built URI: " + builtUri.toString());
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -100,6 +116,10 @@ public class SunshineService extends IntentService {
             }
             forecastJsonStr = buffer.toString();
             getWeatherDataFromJson(forecastJsonStr, locationQuery);
+
+            // Log the json response
+            Log.v(LOG_TAG, " - onHandleIntent: Forecast JSON String:" + forecastJsonStr);
+
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attempting
@@ -128,16 +148,22 @@ public class SunshineService extends IntentService {
      *
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
+     *
+     * @param forecastJsonStr Entire JSON string from the OpenWeatherMap API
+     * @param locationSetting Location zipcode
+     * @return A String array containing the final formatted weather data
      */
     private void getWeatherDataFromJson(String forecastJsonStr,
                                         String locationSetting)
             throws JSONException {
+        Log.v(LOG_TAG, "getWeatherDataFromJson");
 
         // Now we have a String representing the complete forecast in JSON Format.
         // Fortunately parsing is easy:  constructor takes the JSON string and converts it
         // into an Object hierarchy for us.
 
         // These are the names of the JSON objects that need to be extracted.
+        // Open Weather Map (OWM) Strings
 
         // Location information
         final String OWM_CITY = "city";
@@ -192,10 +218,10 @@ public class SunshineService extends IntentService {
             Time dayTime = new Time();
             dayTime.setToNow();
 
-            // we start at the day returned by local time. Otherwise this is a mess.
+            // We start at the day returned by local time. Otherwise this is a mess.
             int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
 
-            // now we work exclusively in UTC
+            // Now we work exclusively in UTC
             dayTime = new Time();
 
             for(int i = 0; i < weatherArray.length(); i++) {
@@ -253,14 +279,15 @@ public class SunshineService extends IntentService {
             }
 
             int inserted = 0;
-            // add to database
+            // Add to database
             if ( cVVector.size() > 0 ) {
+                // Call bulkInsert to add the weatherEntries to the database here
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
                 this.getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
             }
 
-            Log.d(LOG_TAG, "Sunshine Service Complete. " + cVVector.size() + " Inserted");
+            Log.v(LOG_TAG, " - getWeatherDataFromJson: Sunshine Service Complete. " + cVVector.size() + " Inserted");
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -278,9 +305,13 @@ public class SunshineService extends IntentService {
      * @return the row ID of the added location.
      */
     long addLocation(String locationSetting, String cityName, double lat, double lon) {
+        Log.v(LOG_TAG, "addLocation");
+        // First, check if the location with this city name exists in the db
+        // If it exists, return the current ID
+        // Otherwise, insert it using the content resolver and the base URI
         long locationId;
 
-        // First, check if the location with this city name exists in the db
+        // Check if the location with this city name exists in the db
         Cursor locationCursor = this.getContentResolver().query(
                 WeatherContract.LocationEntry.CONTENT_URI,
                 new String[]{WeatherContract.LocationEntry._ID},
@@ -289,9 +320,12 @@ public class SunshineService extends IntentService {
                 null);
 
         if (locationCursor.moveToFirst()) {
+            Log.v(LOG_TAG, " - addLocation: location already exists");
+            // Location does exist already, return the ID
             int locationIdIndex = locationCursor.getColumnIndex(WeatherContract.LocationEntry._ID);
             locationId = locationCursor.getLong(locationIdIndex);
         } else {
+            Log.v(LOG_TAG, " - addLocation: inserting new location");
             // Now that the content provider is set up, inserting rows of data is pretty simple.
             // First create a ContentValues object to hold the data you want to insert.
             ContentValues locationValues = new ContentValues();

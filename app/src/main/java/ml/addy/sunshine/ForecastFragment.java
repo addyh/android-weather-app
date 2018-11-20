@@ -269,14 +269,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
     }
 
-    // Update the weather data by calling FetchWeatherTask with the location from preferences
+    // Update the weather data by starting an IntentService using the location from preferences
     private void updateWeather() {
         Log.v(LOG_TAG, "updateWeather");
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
         String location = Utility.getPreferredLocation(getActivity());
-
-        weatherTask.execute(location);
-
         Intent intent = new Intent(getActivity(), SunshineService.class);
         intent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, location);
         getActivity().startService(intent);
