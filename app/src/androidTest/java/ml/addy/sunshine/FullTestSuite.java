@@ -21,8 +21,7 @@ import ml.addy.sunshine.data.TestWeatherContract;
         TestPractice.class,
         TestProvider.class,
         TestUriMatcher.class,
-        TestWeatherContract.class,
-        TestFetchWeatherTask.class
+        TestWeatherContract.class
 })
 
 public class FullTestSuite extends TestSuite {
@@ -33,8 +32,7 @@ public class FullTestSuite extends TestSuite {
                 TestPractice.class,
                 TestProvider.class,
                 TestUriMatcher.class,
-                TestWeatherContract.class,
-                TestFetchWeatherTask.class
+                TestWeatherContract.class
         );
     }
 
